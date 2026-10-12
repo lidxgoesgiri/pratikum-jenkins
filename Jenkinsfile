@@ -5,7 +5,7 @@ pipeline {
         REGISTRY = 'https://index.docker.io/v1/'
         REGISTRY_CREDENTIALS = 'dockerhub-credentials'
         PATH = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-       
+        DOCKER_HOST = "unix:///var/run/docker.sock"
     }
     stages {
         stage('Checkout') {
@@ -26,17 +26,17 @@ pipeline {
         bat 'docker build -t kotoamatsukami10/simple-app:16 .'
     }
 }
-stage('Push Docker Image') {
-    steps {
-        echo 'Push Docker image...'
-        // Ganti 'docker-hub-credentials' dengan ID credential Docker Hub yang kamu buat di Jenkins
-        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-            bat 'echo %PASS% | docker login -u %USER% --password-stdin'
-            bat 'docker push kotoamatsukami10/simple-app:16'
+     stage('Push Docker Image') {
+            steps {
+                script {
+                    echo 'Push image ke Docker Hub...'
+                    docker.withRegistry(REGISTRY, REGISTRY_CREDENTIALS) {
+                        docker.image("${IMAGE_NAME}:${env.BUILD_NUMBER}").push()
+                        docker.image("${IMAGE_NAME}:${env.BUILD_NUMBER}").push('latest')
+                    }
+                }
+            }
         }
-    }
-}
-
     }
     post {
         always {
