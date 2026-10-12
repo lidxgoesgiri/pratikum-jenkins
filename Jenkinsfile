@@ -22,7 +22,7 @@ pipeline {
        stage('Build Docker Image') {
     steps {
         echo 'Membangun Docker image...'
-        bat 'docker build -t kotoamatsukami10/simple-app:16 .'
+        bat 'docker build -t kotoamatsukami10/simple-app:20 .'
     }
 }
      stage('Push Docker Image') {
